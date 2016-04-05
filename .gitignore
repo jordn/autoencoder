@@ -63,7 +63,7 @@ target/
 
 
 # MATLAB
-.m~
+*.m~
 
 
 

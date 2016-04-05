@@ -4,7 +4,7 @@ function labels = loadMNISTLabels(filename)
 
 fp = fopen(filename, 'rb');
 if fp == -1
-    system(['gunzip ', filename, '.gz > ', filename]);
+    system(['gunzip -k ' filename]);
     fp = fopen(filename, 'rb');
 end
 assert(fp ~= -1, ['Could not open ', filename, '']);

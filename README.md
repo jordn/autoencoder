@@ -33,3 +33,4 @@ First trained by stacking RBMs to get the 30 hidden units. Transpose of those we
 [Supporting Online Material](http://science.sciencemag.org/content/suppl/2006/08/04/313.5786.504.DC1)
 [Deep Autoencoder implemented in TensorFlow](https://gist.github.com/saliksyed/593c950ba1a3b9dd08d5)
 [Geoff Hinton Lecture on autoencoders](https://class.coursera.org/neuralnets-2012-001/lecture/161)
+[A Practical guide to training RBMs](http://www.cs.toronto.edu/~hinton/absps/guideTR.pdf)
