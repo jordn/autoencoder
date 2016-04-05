@@ -4,7 +4,7 @@ function images = loadMNISTImages(filename)
 
 fp = fopen(filename, 'rb');
 if fp == -1
-    system(['gunzip ', filename, '.gz']);
+    system(['gunzip ', filename, '.gz > ', filename]);
     fp = fopen(filename, 'rb');
 end
 assert(fp ~= -1, ['Could not open ', filename, '']);
