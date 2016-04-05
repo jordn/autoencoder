@@ -60,3 +60,15 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+
+# MATLAB
+.m~
+
+
+
+# MNIST
+mnist/train-images-idx3-ubyte
+mnist/t10k-images-idx3-ubyte
+mnist/t10k-labels-idx1-ubyte
+mnist/train-labels-idx1-ubyte
