@@ -26,6 +26,22 @@ Decoding: 30 linear units -> 250 -> 500 -> 1000 -> 784 pixel [reconstruction]
 
 First trained by stacking RBMs to get the 30 hidden units. Transpose of those weights used for decoding. Then fine-tune with backprop with cross-entropy error.
 
+MNIST digits are continuous valued [0,1] and very non-Gaussian. 
+RBM units pre-trained as follows:
+
+First layer (784 <-> 1000 units):
+  - hidden units are binary (bernoulli with activation probability given by logistic).
+  - visible units are linear with Gaussian noise
+
+Second layer (1000 <-> 500 units) and third layer (500 <-> 250):
+  - hidden units are binary (bernoulli using probability of 1 given by logistic).
+  - visible units are continuous (activation probabilities of the hidden units in the preceding layer.
+
+Top layer (250 <-> 30):
+  - hidden units have stochastic real-values states drawn form a unit variance Gaussian whose mean was is determined by the input from the that RBM's logistic visible units.
+
+
+For fine-tuning, the model is "unfolded" and stochastic activities are are replaced by deterministic real-valued probabilties. Top layer is a linear, every other layer is logistic.
 
 
 # Resources
