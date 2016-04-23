@@ -2,7 +2,7 @@ function visualiseweights(W)
     % For now assuming 100 x 784
     nNeurons = size(W,1); % This many images.
     sideLength = sqrt(size(W,2)); 
-    gridLength = sqrt(nNeurons);
+    gridLength = ceil(sqrt(nNeurons));
     gridSize = [gridLength, gridLength];
     im = nan(sideLength*gridLength);    
     for n = 1:nNeurons
@@ -12,6 +12,7 @@ function visualiseweights(W)
     end
     figure(2);
     imagesc(im);
+    title(['Features (' num2str(nNeurons) ' units)']);
     colormap bone
 end
 
