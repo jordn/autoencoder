@@ -56,3 +56,4 @@ For fine-tuning, the model is "unfolded" and stochastic activities are are repla
 - [Deep Autoencoder implemented in TensorFlow](https://gist.github.com/saliksyed/593c950ba1a3b9dd08d5)
 - [Geoff Hinton Lecture on autoencoders](https://class.coursera.org/neuralnets-2012-001/lecture/161)
 [A Practical guide to training RBMs](http://www.cs.toronto.edu/~hinton/absps/guideTR.pdf)
+[An Introduction to Restricted Boltzmann Machines](http://image.diku.dk/igel/paper/AItRBM-proof.pdf)
