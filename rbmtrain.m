@@ -32,15 +32,19 @@ for epoch = 1:opts.nEpochs
         v1 = sigmoid(rbm.W'*h0 + repmat(rbm.a, 1, opts.nBatchSize)); 
         
         % Hidden state 1 (100 x nBatchSize)
-        p_h1 = sigmoid(rbm.W*v1 + repmat(rbm.b, 1, opts.nBatchSize, 1));
-        
-        deltaW = (p_h0*v0' - p_h1*v1') * opts.stepSize / opts.nBatchSize ...
-            + opts.momentum * deltaW - opts.l2 * rbm.W;
-        deltaA = sum(v0 - v1, 2) * opts.stepSize / opts.nBatchSize ...
-            + opts.momentum * deltaA - opts.l2 * rbm.a;
-        deltaB = sum(p_h0 - p_h1, 2) * opts.stepSize / opts.nBatchSize ...
-            + opts.momentum * deltaB - opts.l2 * rbm.b;
-
+        if strcmp(rbm.hiddenUnits, 'linear')
+            p_h1 = rbm.W * v1 + repmat(rbm.b, 1, opts.nBatchSize);
+        else
+            p_h1 = sigmoid(rbm.W*v1 + repmat(rbm.b, 1, opts.nBatchSize, 1));
+        end
+        deltaW = rbm.learningRate * ( ...
+                (p_h0*v0' - p_h1*v1')/ opts.nBatchSize - opts.l2 * rbm.W ...
+            ) + opts.momentum * deltaW;
+        deltaA = rbm.learningRate * (sum(v0 - v1, 2) / opts.nBatchSize) ...
+            + opts.momentum * deltaA;
+        deltaB = rbm.learningRate * (sum(p_h0 - p_h1, 2) / opts.nBatchSize) ...
+            + opts.momentum * deltaB;
+         
         rbm.W = rbm.W + deltaW;
         rbm.a = rbm.a + deltaA;
         rbm.b = rbm.b + deltaB;
@@ -53,7 +57,8 @@ for epoch = 1:opts.nEpochs
         fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
             epoch, opts.nEpochs, err/nBatches, sum(sum(abs(deltaW))));
         visualiseweights(rbm.W);
-        visualiselayer(v1(:,1)); title('Random reconstruction');
+        
+        visualisereconstruction(v0(:,1), v1(:,1)); title('Random reconstruction');
         pause(1);
     end
 end

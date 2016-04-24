@@ -8,13 +8,12 @@ labels = loadMNISTLabels('./mnist/train-labels-idx1-ubyte');
 rng(568);
 
 %% INITIALISE
-x = images(:,labels==3);
+x = [images(:,labels==3) images(:,labels==7)];
 
 nInput = size(x, 1);
-dbn.sizes = [nInput, 64, 36]; % Hidden states (square number helpful for visualisation)
-opts.nEpochs = 10;
+dbn.sizes = [nInput, 900, 400, 225, 25]; % Hidden states (square number helpful for visualisation)
+opts.nEpochs = 5;
 opts.nBatchSize = 128;
-opts.stepSize = 0.1;
 opts.momentum = 0.6;
 opts.l2 = 0.00002;  % Paper subtracts 0.00002*weight from weight
 
@@ -23,8 +22,11 @@ for layer = 1 : numel(dbn.sizes) - 1
     dbn.rbm{layer}.a  = zeros(dbn.sizes(layer), 1);
     dbn.rbm{layer}.b  = zeros(dbn.sizes(layer + 1), 1);
     dbn.rbm{layer}.hiddenUnits = 'logistic';
+    dbn.rbm{layer}.learningRate = 0.1;
 end
+% Final layer is linear with Gaussian noise
 dbn.rbm{numel(dbn.rbm)}.hiddenUnits = 'linear';
+dbn.rbm{numel(dbn.rbm)}.learningRate = 0.001;
 
 %% TRAIN
 dbn.rbm{1} = rbmtrain(dbn.rbm{1}, x, opts);
@@ -38,7 +40,7 @@ for layer = 2 : numel(dbn.rbm)
 end
 
 %% UNROLL
-nn.sizes = [dbn.sizes fliplr(dbn.sizes(1:end-1))]
+nn.sizes = [dbn.sizes fliplr(dbn.sizes(1:end-1))];
 for layer = 1 : numel(dbn.rbm)
     nn.rbm{layer} = dbn.rbm{layer};
 end
@@ -49,17 +51,11 @@ for layer = 1 : numel(dbn.rbm)
 end
 
 %% FINETUNE
-x = images(:,labels==3);
-nExamples = size(x,2);
-kk = randperm(nExamples);
-j = 1
-batch = x(:, kk((j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
-x = batch;
-for layer = 2 : numel(nn.rbm)
-    x = rbmup(nn.rbm{layer - 1}, x);
+X{1} = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
+for layer = 2 : numel(nn.rbm)+1
+    X{layer} = rbmup(nn.rbm{layer-1}, X{layer-1});
 end
-y = x;
-visualiselayer(batch(:,1)); title('Random reconstruction');
-visualiselayer(y(:,1)); title('Random reconstruction');
-
-
+kk = randperm(size(X{1},2));
+i = 1;
+%%
+i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
