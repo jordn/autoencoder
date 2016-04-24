@@ -22,7 +22,7 @@ for epoch = 1:opts.nEpochs
         % Hidden states 0 (100 x nBatchSize))
         if strcmp(rbm.hiddenUnits, 'linear')
             p_h0 = rbm.W * v0 + repmat(rbm.b, 1, opts.nBatchSize);
-            h0 = p_h0 +randn(size(rbm.b,1), opts.nBatchSize);
+            h0 = p_h0 + randn(size(rbm.b,1), opts.nBatchSize);
         else
             p_h0 = sigmoid(rbm.W * v0 + repmat(rbm.b, 1, opts.nBatchSize));
             h0 = p_h0 > rand(size(p_h0));

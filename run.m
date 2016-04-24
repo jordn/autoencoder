@@ -1,7 +1,7 @@
 %% RESET
 clear; clc;
 cd '/Users/jordanburgess/Dropbox/MLSALT/mlsalt4 Advanced Machine Learning/autoencoder';
-addpath mnist visuals;
+addpath mnist;
 
 images = loadMNISTImages('./mnist/train-images-idx3-ubyte');
 labels = loadMNISTLabels('./mnist/train-labels-idx1-ubyte');
@@ -12,8 +12,8 @@ rng(568);
 x = images;
 
 nInput = size(x, 1);
-dbn.sizes = [nInput, 961, 484, 256, 25, 2]; % Hidden states (square number helpful for visualisation)
-opts.nEpochs = 10;
+dbn.sizes = [nInput, 256, 3]; % Hidden states (square number helpful for visualisation)
+opts.nEpochs = 4;
 opts.nBatchSize = 128;
 opts.momentum = 0.6;
 opts.l2 = 0.00002;  % Paper subtracts 0.00002*weight from weight
@@ -43,8 +43,9 @@ end
 nn = dbnunroll(dbn);
 
 %% RECONSTRUCT
+x = images;
 X = nnfeedforward(nn, x);
-kk = randperm(size(x,2));
+kk = randperm(size(x, 2));
 i = 1;
 i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 
@@ -56,32 +57,35 @@ opts.momentum = 0.6;
 opts.l2 = 0.00002;
 opts.learningRate = 0.01;
 
+x = images;
 nn = nntrain(nn, x, x, opts);
 
 %% RECONSTRUCT
 % x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
 % labs = [labels(labels==3); labels(labels==7); labels(labels==5)];
-x = images;
-labs = labels;
+nSamples = 1000;
+x = images(:,1:nSamples);
+labs = labels(1:nSamples);
 
 X = nnfeedforward(nn, x);
 kk = randperm(size(x,2));
 i = 1;
 i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
+
 %% VISUALISE
-
-figure(3)
-nSamples = 500;
-gscatter( X{6}(1, kk(1:nSamples)), X{6}(2,kk(1:nSamples)), labs(kk(1:nSamples)) )
-
-
-%% VISUTALISE
 figure(3);
 hold off;
+
+% Should this use RBMs with binary states etc?
 for i = 0:9
     x = images(:, labels==i);
-    X = nnfeedforward(nn, x);
-    s{i+1} = scatter(X{6}(1,:), X{6}(2,:));
+    x = x(:, 1:nSamples);
+%     X = nnfeedforward(nn, x);
+    x1 = x;
+    x2 = rbmupsigmoidbin(nn.rbm{1}, x1);
+    x3 = rbmuplinear(nn.rbm{2}, x2);
+    figure(3);
+    s{i+1} = scatter3(x3(1,:), x3(2,:), x3(3,:));
     hold on;
     pause(2)
 end
