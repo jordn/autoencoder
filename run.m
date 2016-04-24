@@ -26,8 +26,8 @@ for layer = 1 : numel(dbn.sizes) - 1
     dbn.rbm{layer}.learningRate = 0.1;
 end
 % Code layer is linear with Gaussian noise
-dbn.rbm{numel(dbn.rbm)}.hiddenUnits = 'linear';
-dbn.rbm{numel(dbn.rbm)}.learningRate = 0.001;
+dbn.rbm{end}.hiddenUnits = 'linear';
+dbn.rbm{end}.learningRate = 0.001;
 
 %% TRAIN
 dbn.rbm{1} = rbmtrain(dbn.rbm{1}, x, opts);
@@ -58,7 +58,6 @@ opts.l2 = 0.00002;
 opts.learningRate = 0.01;
 
 nn = nntrain(nn, x, x, opts);
-
 
 %% RECONSTRUCT
 x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];

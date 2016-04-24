@@ -4,42 +4,40 @@ function nn = nntrain(nn, x, targets, opts)
 % Mini-batch gradient descent with reconstruction mean squared error
 nExamples = size(x,2);
 nBatches = nExamples / opts.nBatchSize;
-
+nLayers = numel(nn.rbm);
 %% BACKPROP
 
 for epoch = 1:opts.nEpochs
     kk = randperm(nExamples);
-    err = 0;
     tic
     for j = 1:nBatches
-
         % Feed forward
         batch = x(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
         t = targets(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
         X{1} = batch;
-        for layer = 2 : numel(nn.rbm)+1
-            X{layer} = rbmup(nn.rbm{layer-1}, X{layer-1});
+        for l = 1 : nLayers
+            X{l+1} = rbmup(nn.rbm{l}, X{l});
         end
         err = sum(sum(0.5*(X{end} - t).^2));
 
         g = X{end} - X{1}; % Gradient on the output layer.
-        for layer = numel(nn.rbm):-1:1
-            g = g .* X{layer+1} .* (1-X{layer+1}); % Gradient z (pre non-linearity)
+        for l = nLayers:-1:1
+            g = g .* X{l+1} .* (1-X{l+1}); % Gradient z (pre non-linearity)
 
-            nn.rbm{layer}.deltaW = opts.learningRate * ( ...
-                -g*X{layer}' / opts.nBatchSize - opts.l2 * nn.rbm{layer}.W ...
-            ) + opts.momentum * nn.rbm{layer}.deltaW;
+            nn.rbm{l}.deltaW = opts.learningRate * ( ...
+                -g*X{l}' / opts.nBatchSize - opts.l2 * nn.rbm{l}.W ...
+            ) + opts.momentum * nn.rbm{l}.deltaW;
 
-            nn.rbm{layer}.deltaB = opts.learningRate * ( ...
-                -sum(g,2) / opts.nBatchSize - opts.l2 * nn.rbm{layer}.b ...
-            ) + opts.momentum * nn.rbm{layer}.deltaB;
+            nn.rbm{l}.deltaB = opts.learningRate * ( ...
+                -sum(g,2) / opts.nBatchSize - opts.l2 * nn.rbm{l}.b ...
+            ) + opts.momentum * nn.rbm{l}.deltaB;
 
-            nn.rbm{layer}.W = nn.rbm{layer}.W + nn.rbm{layer}.deltaW;
-            nn.rbm{layer}.b = nn.rbm{layer}.b + nn.rbm{layer}.deltaB;
-            g = nn.rbm{layer}.W'*g;
+            nn.rbm{l}.W = nn.rbm{l}.W + nn.rbm{l}.deltaW;
+            nn.rbm{l}.b = nn.rbm{l}.b + nn.rbm{l}.deltaB;
+            g = nn.rbm{l}.W'*g;
         end
         fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
-            epoch, opts.nEpochs, err/nBatches, sum(sum(abs(nn.rbm{layer}.deltaW))));
+            epoch, opts.nEpochs, err/nBatches, sum(sum(abs(nn.rbm{l}.deltaW))));
     end
     toc;
 end
