@@ -9,10 +9,10 @@ rng(568);
 
 %% INITIALISE
 % x = [images(:,labels==3) images(:,labels==7)];
-x = [images(:,labels==3) images(:,labels==7)];
+x = images;
 
 nInput = size(x, 1);
-dbn.sizes = [nInput, 961, 484, 256, 25]; % Hidden states (square number helpful for visualisation)
+dbn.sizes = [nInput, 961, 484, 256, 25, 2]; % Hidden states (square number helpful for visualisation)
 opts.nEpochs = 10;
 opts.nBatchSize = 128;
 opts.momentum = 0.6;
@@ -43,11 +43,10 @@ end
 nn = dbnunroll(dbn);
 
 %% RECONSTRUCT
-x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
-y = nnfeedforward(nn, x);
+X = nnfeedforward(nn, x);
 kk = randperm(size(x,2));
 i = 1;
-i = i +1; visualisereconstruction(x(:,kk(i)), y(:,kk(i)));
+i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 
 %% FINETUNE
 % Mini-batch gradient descent with reconstruction mean squared error
@@ -60,8 +59,29 @@ opts.learningRate = 0.01;
 nn = nntrain(nn, x, x, opts);
 
 %% RECONSTRUCT
-x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
-y = nnfeedforward(nn, x);
+% x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
+% labs = [labels(labels==3); labels(labels==7); labels(labels==5)];
+x = images;
+labs = labels;
+
+X = nnfeedforward(nn, x);
 kk = randperm(size(x,2));
 i = 1;
-i = i +1; visualisereconstruction(x(:,kk(i)), y(:,kk(i)));
+i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
+%% VISUALISE
+
+figure(3)
+nSamples = 500;
+gscatter( X{6}(1, kk(1:nSamples)), X{6}(2,kk(1:nSamples)), labs(kk(1:nSamples)) )
+
+
+%% VISUTALISE
+figure(3);
+hold off;
+for i = 0:9
+    x = images(:, labels==i);
+    X = nnfeedforward(nn, x);
+    s{i+1} = scatter(X{6}(1,:), X{6}(2,:));
+    hold on;
+    pause(2)
+end

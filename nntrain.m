@@ -14,10 +14,7 @@ for epoch = 1:opts.nEpochs
         % Feed forward
         batch = x(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
         t = targets(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
-        X{1} = batch;
-        for l = 1 : nLayers
-            X{l+1} = rbmup(nn.rbm{l}, X{l});
-        end
+        X = nnfeedforward(nn, batch);
         err = sum(sum(0.5*(X{end} - t).^2));
 
         g = X{end} - X{1}; % Gradient on the output layer.

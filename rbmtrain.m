@@ -53,12 +53,11 @@ for epoch = 1:opts.nEpochs
         
     end
     toc
-    if mod(epoch,1) == 0
-        fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
+    fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
             epoch, opts.nEpochs, err/nBatches, sum(sum(abs(deltaW))));
-        visualiseweights(rbm.W);
-        
-        visualisereconstruction(v0(:,1), v1(:,1)); title('Random reconstruction');
-        pause(1);
+    if mod(epoch, 3) == 1
+        visualiseweights(rbm.W); 
+        visualisereconstruction(v0(:,1), v1(:,1));
+        pause(0.5);
     end
 end
