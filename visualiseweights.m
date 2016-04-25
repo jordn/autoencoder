@@ -8,7 +8,7 @@ function visualiseweights(W)
     im = nan((sideLength+1)*gridLength); % squares + border
     for n = 1:nNeurons
         [i, j] = ind2sub(gridSize, n);
-        weights = pad(W(n,:), sideLength*sideLength, 2);
+        weights = pad(W(n,:), sideLength*sideLength, 'nan', 2);
         squareWeights = nan(sideLength+1);
         squareWeights(1:sideLength, 1:sideLength) = reshape(weights, sideLength, sideLength);
         

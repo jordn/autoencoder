@@ -1,11 +1,11 @@
 function visualisereconstruction(data, recon)
     figure(1);
-    sideLength = sqrt(length(data));
+    sideLength = ceil(sqrt(length(data)));
     subplot(1,2,1);
-    imagesc(reshape(data, sideLength, sideLength));
+    imagesc(reshape(pad(data, sideLength^2, 'nan'), sideLength, sideLength));
     title('Data');
     subplot(1,2,2);
-    imagesc(reshape(recon, sideLength, sideLength));
+    imagesc(reshape(pad(recon, sideLength^2, 'nan'), sideLength, sideLength));
     colormap bone;
     title('Reconstruction');
 end
