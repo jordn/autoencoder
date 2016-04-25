@@ -19,7 +19,7 @@ labelsCV = labels(kk(trainN+1:end));
 x = imagesTrain;
 
 nTrain = size(x, 1);
-dbn.sizes = [nTrain, 1000, 500, 250, 2]; % Hidden states (square number helpful for visualisation)
+dbn.sizes = [nTrain, 1000, 500, 250, 30]; % Hidden states (square number helpful for visualisation)
 opts.nEpochs = 10;
 opts.nBatchSize = 20;
 opts.momentum = 0.6;  % Paper starts with 0.5, then switches to 0.9.
@@ -36,7 +36,7 @@ end
 dbn.rbm{end}.hiddenUnits = 'linear';
 dbn.rbm{end}.learningRate = 0.001;
 
-%% TRAIN
+%% TRAIN RBM
 dbn.rbm{1} = rbmtrain(dbn.rbm{1}, x, opts);
 
 for layer = 2 : numel(dbn.rbm)
@@ -58,7 +58,8 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 % Mini-batch gradient descent with reconstruction mean squared error
 opts.nEpochs = 1;
 opts.l2 = 0.00002;
-opts.learningRate = 0.01; %?
+opts.nBatchSize = 100;
+opts.learningRate = 0.1; %?
 
 x = imagesTrain;
 nn = nntrain(nn, x, x, opts);
@@ -79,20 +80,27 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 figure(3);
 hold off;
 nSamples = 400;
+colors = [
+0    0.4470    0.7410
+0.8500    0.3250    0.0980
+0.9290    0.6940    0.1250
+0.4940    0.1840    0.5560
+0.4660    0.6740    0.1880
+0.3010    0.7450    0.9330
+0.6350    0.0780    0.1840
+0.2       0.2       0.2
+0.32      0.12       0.6
+0.9       0.2       0.3
+]
 
 % Should this use RBMs with binary states etc?
 for i = 0:9
     x = imagesTrain(:, labelsTrain==i);
     x = x(:, 1:nSamples);
     X = nnfeedforward(nn, x);
-%     x1 = x;
-%     x2 = rbmupsigmoidbin(nn.rbm{1}, x1);
-%     x3 = rbmupsigmoidbin(nn.rbm{2}, x2);
-%     x4 = rbmupsigmoidbin(nn.rbm{3}, x3);
-%     x5 = rbmuplinear(nn.rbm{4}, x4);
-%     figure(3);
-%     s{i+1} = scatter(x5(1,:), x5(2,:));
-    s{i+1} = scatter(X{5}(1,:), X{5}(2,:));
+    s{i+1} = scatter(X{5}(1,:), X{5}(2,:), 'filled', 'MarkerFaceColor', colors(i+1,:));
     hold on;
-    pause(2)
+    pause(1)
+    axis off 
 end
+leg = legend('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Location','northwest')
