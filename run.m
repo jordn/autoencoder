@@ -56,7 +56,7 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 
 %% FINETUNE
 % Mini-batch gradient descent with reconstruction mean squared error
-opts.nEpochs = 3;
+opts.nEpochs = 1;
 opts.l2 = 0.00002;
 opts.learningRate = 0.01; %?
 
@@ -82,17 +82,17 @@ nSamples = 400;
 
 % Should this use RBMs with binary states etc?
 for i = 0:9
-    x = imagesCV(:, labelsCV==i);
-    size(x)
+    x = imagesTrain(:, labelsTrain==i);
     x = x(:, 1:nSamples);
-%     X = nnfeedforward(nn, x);
-    x1 = x;
-    x2 = rbmupsigmoidbin(nn.rbm{1}, x1);
-    x3 = rbmupsigmoidbin(nn.rbm{2}, x2);
-    x4 = rbmupsigmoidbin(nn.rbm{3}, x3);
-    x5 = rbmuplinear(nn.rbm{4}, x4);
-    figure(3);
-    s{i+1} = scatter(x5(1,:), x5(2,:));
+    X = nnfeedforward(nn, x);
+%     x1 = x;
+%     x2 = rbmupsigmoidbin(nn.rbm{1}, x1);
+%     x3 = rbmupsigmoidbin(nn.rbm{2}, x2);
+%     x4 = rbmupsigmoidbin(nn.rbm{3}, x3);
+%     x5 = rbmuplinear(nn.rbm{4}, x4);
+%     figure(3);
+%     s{i+1} = scatter(x5(1,:), x5(2,:));
+    s{i+1} = scatter(X{5}(1,:), X{5}(2,:));
     hold on;
     pause(2)
 end
