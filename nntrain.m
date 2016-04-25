@@ -33,8 +33,10 @@ for epoch = 1:opts.nEpochs
             nn.rbm{l}.b = nn.rbm{l}.b + nn.rbm{l}.deltaB;
             g = nn.rbm{l}.W'*g;
         end
-        fprintf('Epoch %d/%d, batch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
-            j, nBatches, epoch, opts.nEpochs, err/nBatches, sum(sum(abs(nn.rbm{l}.deltaW))));
+        if mod(j,5) == 1
+            fprintf('Epoch %d/%d, batch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
+                epoch, opts.nEpochs, j, nBatches, err/nBatches, sum(sum(abs(nn.rbm{l}.deltaW))));
+        end
     end
     toc;
 end

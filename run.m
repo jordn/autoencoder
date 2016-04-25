@@ -1,7 +1,7 @@
 %% RESET
-clear; clc;
+clear; clc; close all;
 cd '/Users/jordanburgess/Dropbox/MLSALT/mlsalt4 Advanced Machine Learning/autoencoder';
-addpath mnist;
+addpath mnist utils;
 
 images = loadMNISTImages('./mnist/train-images-idx3-ubyte');
 labels = loadMNISTLabels('./mnist/train-labels-idx1-ubyte');
@@ -12,11 +12,11 @@ rng(568);
 x = images;
 
 nInput = size(x, 1);
-dbn.sizes = [nInput, 256, 3]; % Hidden states (square number helpful for visualisation)
-opts.nEpochs = 4;
-opts.nBatchSize = 128;
-opts.momentum = 0.6;
-opts.l2 = 0.00002;  % Paper subtracts 0.00002*weight from weight
+dbn.sizes = [nInput, 1000, 500, 250, 2]; % Hidden states (square number helpful for visualisation)
+opts.nEpochs = 10;
+opts.nBatchSize = 20;
+opts.momentum = 0.6;  % Paper starts with 0.5, then switches to 0.9.
+opts.l2 = 0.00002;  % Paper subtracts 0.00002*weight from weight.
 
 for layer = 1 : numel(dbn.sizes) - 1
     dbn.rbm{layer}.W  = 0.1*randn(dbn.sizes(layer + 1), dbn.sizes(layer));
@@ -31,12 +31,10 @@ dbn.rbm{end}.learningRate = 0.001;
 
 %% TRAIN
 dbn.rbm{1} = rbmtrain(dbn.rbm{1}, x, opts);
-visualiseweights(dbn.rbm{1}.W');
 
 for layer = 2 : numel(dbn.rbm)
     x = rbmup(dbn.rbm{layer - 1}, x);
     dbn.rbm{layer} = rbmtrain(dbn.rbm{layer}, x, opts);
-    visualiseweights(dbn.rbm{layer}.W);
 end
 
 %% UNROLL
@@ -52,7 +50,7 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 %% FINETUNE
 % Mini-batch gradient descent with reconstruction mean squared error
 opts.nEpochs = 1;
-opts.nBatchSize = 128;
+opts.nBatchSize = 20;
 opts.momentum = 0.6;
 opts.l2 = 0.00002;
 opts.learningRate = 0.01;
@@ -83,9 +81,11 @@ for i = 0:9
 %     X = nnfeedforward(nn, x);
     x1 = x;
     x2 = rbmupsigmoidbin(nn.rbm{1}, x1);
-    x3 = rbmuplinear(nn.rbm{2}, x2);
+    x3 = rbmupsigmoidbin(nn.rbm{2}, x2);
+    x4 = rbmupsigmoidbin(nn.rbm{3}, x3);
+    x5 = rbmuplinear(nn.rbm{4}, x4);
     figure(3);
-    s{i+1} = scatter3(x3(1,:), x3(2,:), x3(3,:));
+    s{i+1} = scatter(x5(1,:), x5(2,:));
     hold on;
     pause(2)
 end

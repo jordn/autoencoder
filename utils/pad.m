@@ -11,13 +11,13 @@ if nargin < 4
 end
 
 if strcmp(val, 'nan')
-    padvec = nan(len-length(vec));
+    padvec = nan(len-length(vec), 1);
 elseif strcmp(val, 'zeros')
-    padvec = zeros(len-length(vec));
+    padvec = zeros(len-length(vec), 1);
 end
 
 if dim == 1
     padded = [vec; padvec];
 elseif dim == 2
-    padded = [vec padvec];
+    padded = [vec padvec'];
 end
