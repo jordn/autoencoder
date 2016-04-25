@@ -55,7 +55,7 @@ for epoch = 1:opts.nEpochs
     toc
     fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
             epoch, opts.nEpochs, err/nBatches, sum(sum(abs(deltaW))));
-    if mod(epoch, 3) == 1
+    if mod(epoch, 2) == 1
         visualiseweights(rbm.W); 
         visualisereconstruction(v0(:,1), v1(:,1));
         pause(0.5);
