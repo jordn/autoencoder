@@ -14,6 +14,7 @@ function nn = dbnunroll(dbn)
         nn.rbm{nRBMs + layer}.b = dbn.rbm{nRBMs - layer + 1}.a;
         nn.rbm{nRBMs + layer}.deltaW = 0;
         nn.rbm{nRBMs + layer}.deltaB = 0;
-        nn.rbm{nRBMs + layer}.hiddenUnits = 'logistic';
+        nn.rbm{nRBMs + layer}.hiddenUnits = dbn.rbm{nRBMs - layer + 1}.visibleUnits;
+        nn.rbm{nRBMs + layer}.visibleUnits = dbn.rbm{nRBMs - layer + 1}.hiddenUnits;
     end
 end
