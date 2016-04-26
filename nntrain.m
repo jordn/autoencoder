@@ -40,7 +40,7 @@ for epoch = 1:opts.nEpochs
             fprintf('Epoch %d/%d, batch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
                 epoch, opts.nEpochs, j, nBatches, err, sum(sum(abs(nn.rbm{l}.deltaW))));
         end
-        if mod(j,ceil(5000/opts.nBatchSize)) == 0
+        if mod(j,10) == 1
             visualisereconstruction(X{1}(:,1), X{end}(:,1));
             pause(0.5);
         end

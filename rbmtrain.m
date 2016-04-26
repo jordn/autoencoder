@@ -1,5 +1,5 @@
 function rbm = rbmtrain(rbm, x, opts)
-
+%% Setup
 nExamples = size(x,2);
 nBatches = nExamples / opts.nBatchSize;
 
@@ -7,7 +7,7 @@ deltaW = zeros(size(rbm.W));
 deltaA = zeros(size(rbm.a));
 deltaB = zeros(size(rbm.b));
 
-%%
+%% Train
 for epoch = 1:opts.nEpochs
     kk = randperm(nExamples);
     err = 0;
@@ -29,7 +29,12 @@ for epoch = 1:opts.nEpochs
         end
         
         % Reconstruction 1 (784 x nBatchSize)
-        v1 = sigmoid(rbm.W'*h0 + repmat(rbm.a, 1, opts.nBatchSize)); 
+        if isfield(rbm, 'visibleUnits') && strcmp(rbm.visibleUnits, 'linear')
+            p_v1 = rbm.W' * h0 + repmat(rbm.a, 1, opts.nBatchSize);
+            v1 = p_v1 + randn(size(rbm.a,1), opts.nBatchSize);
+        else
+            v1 = sigmoid(rbm.W'*h0 + repmat(rbm.a, 1, opts.nBatchSize)); 
+        end
         
         % Hidden state 1 (100 x nBatchSize)
         if strcmp(rbm.hiddenUnits, 'linear')
@@ -55,7 +60,7 @@ for epoch = 1:opts.nEpochs
     toc
     fprintf('Epoch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
             epoch, opts.nEpochs, err/nBatches, sum(sum(abs(deltaW))));
-    if mod(epoch, 2) == 1
+    if mod(epoch, 1) == 0
         visualiseweights(rbm.W); 
         visualisereconstruction(v0(:,1), v1(:,1));
         pause(0.5);
