@@ -42,7 +42,7 @@ for epoch = 1:opts.nEpochs
         end
         if mod(j,10) == 1
             visualisereconstruction(X{1}(:,1), X{end}(:,1));
-            pause(0.5);
+            pause(0.15);
         end
     end
     toc;
