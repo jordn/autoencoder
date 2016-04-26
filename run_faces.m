@@ -28,8 +28,8 @@ clear images labels; % Clear big data from memory;
 
 %% INITIALISE
 x = imagesTrain;
-dbn.sizes = [size(x, 1), 1000, 250, 30]; % Hidden states (square number helpful for visualisation)
-opts.nEpochs = 50;
+dbn.sizes = [size(x, 1), 2000, 1000, 500, 30]; % Hidden states (square number helpful for visualisation)
+opts.nEpochs = 5;
 opts.nBatchSize = 20;
 opts.momentum = 0.6;  % Paper starts with 0.5, then switches to 0.9.
 opts.l2 = 0.00002;  % Paper subtracts 0.00002*weight from weight.
@@ -75,7 +75,8 @@ mse = 255*mean( ( X{1}(:,kk(i)) - X{end}(:,kk(i)) ).^2 )
 opts.nEpochs = 1;
 opts.l2 = 0.00002;
 opts.nBatchSize = 1000;
-opts.learningRate = 0.01; %?
+opts.momentum = 0.7;  % Paper starts with 0.5, then switches to 0.9.
+opts.learningRate = 0.001; %?
 
 x = imagesTrain;
 nn = nntrain(nn, x, x, opts);
@@ -96,5 +97,9 @@ mse = 255*mean(mean( ( X{1} - X{end} ).^2))
 nSamples = min(size(imagesTest,2), 1000);
 x = imagesTest(:, 1:nSamples);
 X = nnfeedforward(nn, x);
-visualisecomparison(X, labelsTest);
-savefig('faces', gcf, 'eps');
+[mappedX, mapping] = compute_mapping(x', 'PCA', 30);
+reconPCA = reconstruct_data(mappedX, mapping)'; % Todo. We should 'reconstruct' test data, with PCA trained on training data.
+visualisecomparison(X, labelsTest, reconPCA);
+% savefig('faces', gcf, 'eps');
+mse = 255*mean(mean( ( X{1} - X{end} ).^2))
+mse = 255*mean(mean( ( X{1} - reconPCA).^2))
