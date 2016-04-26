@@ -12,8 +12,8 @@ N = size(images, 2);
 trainN = 0.9 * N;
 imagesTrain = images(:, kk(1:trainN));
 labelsTrain = labels(kk(1:trainN));
-imagesCV = images(:, kk(trainN+1:end));
-labelsCV = labels(kk(trainN+1:end));
+imagesTest = images(:, kk(trainN+1:end));
+labelsTest = labels(kk(trainN+1:end));
 
 %% INITIALISE
 x = imagesTrain;
@@ -29,6 +29,7 @@ for layer = 1 : numel(dbn.sizes) - 1
     dbn.rbm{layer}.W  = 0.1*randn(dbn.sizes(layer + 1), dbn.sizes(layer));
     dbn.rbm{layer}.a  = zeros(dbn.sizes(layer), 1);
     dbn.rbm{layer}.b  = zeros(dbn.sizes(layer + 1), 1);
+    dbn.rbm{layer}.visibleUnits = 'logistic';
     dbn.rbm{layer}.hiddenUnits = 'logistic';
     dbn.rbm{layer}.learningRate = 0.1;
 end
@@ -48,7 +49,7 @@ end
 nn = dbnunroll(dbn);
 
 %% RECONSTRUCT
-x = imagesCV;
+x = imagesTest;
 X = nnfeedforward(nn, x);
 kk = randperm(size(x, 2));
 i = 1;
@@ -68,13 +69,20 @@ nn = nntrain(nn, x, x, opts);
 % x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
 % labs = [labels(labels==3); labels(labels==7); labels(labels==5)];
 nSamples = 1000;
-x = imagesCV(:,1:nSamples);
+x = imagesTest(:,1:nSamples);
 labs = labels(1:nSamples);
 
 X = nnfeedforward(nn, x);
 kk = randperm(size(x,2));
 i = 1;
 i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
+
+%% COMPARE
+nSamples = min(size(imagesTest,2), 1000);
+x = imagesTest(:, 1:nSamples);
+X = nnfeedforward(nn, x);
+visualisecomparison(X, labelsTest);
+savefig('mnist', gcf, 'eps');
 
 %% VISUALISE
 figure(3);
