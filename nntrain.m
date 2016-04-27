@@ -1,22 +1,34 @@
-function nn = nntrain(nn, x, targets, opts)
+function [nn, training] = nntrain(nn, xTrain, yTrain, opts)
 
 %% FINETUNE
 % Mini-batch gradient descent with reconstruction mean squared error
-nExamples = size(x,2);
+nExamples = size(xTrain,2);
 nBatches = nExamples / opts.nBatchSize;
 nLayers = numel(nn.rbm);
-%% BACKPROP
 
+training = []; % logging [epoch, mse]
+
+%% BACKPROP
 for epoch = 1:opts.nEpochs
     kk = randperm(nExamples);
     tic
     for j = 1:nBatches
         % Feed forward
-        batch = x(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
-        t = targets(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
+        batch = xTrain(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
+        t = yTrain(:, kk( (j-1) * opts.nBatchSize + 1 : j * opts.nBatchSize));
         X = nnfeedforward(nn, batch);
         err = sum(sum(0.5*(X{end} - t).^2))/opts.nBatchSize;
-
+        
+        if mod(j,10) == 1
+%             visualisereconstruction(X{1}(:,1), X{end}(:,1));
+%             pause(0.15);
+            training = [training; (j-1)/nBatches+(epoch-1) err];
+            fprintf('Epoch %d/%d, batch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
+                epoch, opts.nEpochs, j-1, nBatches, err, sum(sum(abs(nn.rbm{end}.deltaW))));
+        end
+        
+        
+        
         g = X{end} - X{1}; % Gradient on the output layer.
         for l = nLayers:-1:1
             if strcmp(nn.rbm{l}.hiddenUnits, 'linear')
@@ -36,14 +48,7 @@ for epoch = 1:opts.nEpochs
             nn.rbm{l}.b = nn.rbm{l}.b + nn.rbm{l}.deltaB;
             g = nn.rbm{l}.W'*g;
         end
-        if mod(j,5) == 1
-            fprintf('Epoch %d/%d, batch %d/%d. Reconstruction error %f (last deltaW %f)\n',...
-                epoch, opts.nEpochs, j, nBatches, err, sum(sum(abs(nn.rbm{l}.deltaW))));
-        end
-        if mod(j,10) == 1
-            visualisereconstruction(X{1}(:,1), X{end}(:,1));
-            pause(0.15);
-        end
+        
     end
     toc;
 end
