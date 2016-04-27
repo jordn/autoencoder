@@ -72,14 +72,14 @@ mse = 255*mean( ( X{1}(:,kk(i)) - X{end}(:,kk(i)) ).^2 )
 
 %% FINETUNE
 % Mini-batch gradient descent with reconstruction mean squared error
-opts.nEpochs = 1;
+opts.nEpochs = 30;
 opts.l2 = 0.00002;
 opts.nBatchSize = 1000;
 opts.momentum = 0.7;  % Paper starts with 0.5, then switches to 0.9.
-opts.learningRate = 0.001; %?
+opts.learningRate = 0.0001; %?
 
 x = imagesTrain;
-nn = nntrain(nn, x, x, opts);
+[nn, training] = nntrain(nn, x, x, opts);
 
 %% RECONSTRUCT (test)
 
@@ -94,12 +94,19 @@ mse = 255*mean(mean( ( X{1} - X{end} ).^2))
 
 
 %% COMPARE
-nSamples = min(size(imagesTest,2), 1000);
-x = imagesTest(:, 1:nSamples);
+nSamples = min(size(imagesTrain,2), 1000);
+x = imagesTrain(:, 1:nSamples);
 X = nnfeedforward(nn, x);
 [mappedX, mapping] = compute_mapping(x', 'PCA', 30);
+[mappedX, mapping] = compute_mapping(imagesTrain', 'PCA', 30);
+
+for i = 1:size(x,2)
+    xbar(i) = mean(x(:,i));
+end
+% [mappedTest, mappingTest] = compute_mapping(x', 'PCA', 30);
+
 reconPCA = reconstruct_data(mappedX, mapping)'; % Todo. We should 'reconstruct' test data, with PCA trained on training data.
 visualisecomparison(X, labelsTest, reconPCA);
 % savefig('faces', gcf, 'eps');
 mse = 255*mean(mean( ( X{1} - X{end} ).^2))
-mse = 255*mean(mean( ( X{1} - reconPCA).^2))
+mse = 255*mean(mean( ( imagesTrain - reconPCA).^2))

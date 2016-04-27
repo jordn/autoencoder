@@ -2,6 +2,7 @@
 clear; clc; close all;
 cd '/Users/jordanburgess/Dropbox/MLSALT/mlsalt4 Advanced Machine Learning/autoencoder';
 addpath mnist utils;
+addpath(genpath('drtoolbox'));
 rng(568);
 
 images = loadMNISTImages('./mnist/train-images-idx3-ubyte');
@@ -59,11 +60,15 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 % Mini-batch gradient descent with reconstruction mean squared error
 opts.nEpochs = 1;
 opts.l2 = 0.00002;
-opts.nBatchSize = 100;
-opts.learningRate = 0.1; %?
+opts.nBatchSize = 1000;
+opts.learningRate = 0.002; %?
 
-x = imagesTrain;
-nn = nntrain(nn, x, x, opts);
+[nn, training] = nntrain(nn, imagesTrain, imagesTrain, opts);
+
+%% PLOT training
+figure(4);plot(training(:,1), training(:,2)); 
+hold on;
+% plot(training(:,1), training(:,3));
 
 %% RECONSTRUCT
 % x = [images(:,labels==3) images(:,labels==7) images(:,labels==5)];
@@ -81,10 +86,19 @@ i = i +1; visualisereconstruction(X{1}(:,kk(i)), X{end}(:,kk(i)));
 nSamples = min(size(imagesTest,2), 1000);
 x = imagesTest(:, 1:nSamples);
 X = nnfeedforward(nn, x);
-visualisecomparison(X, labelsTest);
-savefig('mnist', gcf, 'eps');
+[mappedX, mapping] = compute_mapping(imagesTrain', 'PCA', 2);
+reconPCA = (repmat(mapping.mean, nSamples, 1) + ...
+    (x'*mapping.M - repmat(mapping.mean*mapping.M, nSamples, 1))*mapping.M')';
+
+
+visualisecomparison(X, labelsTest, reconPCA);
+savefig('mnist2d', gcf, 'eps');
+mse = sum(sum(0.5*(X{end} - X{1}).^2))/size(X{1},2)
+mse = sum(sum(0.5*(reconPCA - X{1}).^2))/size(X{1},2)
 
 %% VISUALISE
 
+% visualise2d(nn, imagesTrain, labelsTrain);
 visualise2d(nn, imagesTrain, labelsTrain);
-savefig('mnist2d')
+% savefig('mnist2d')
+
